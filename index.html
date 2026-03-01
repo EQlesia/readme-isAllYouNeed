@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>業務ナビゲーター</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header id="app-header">
+  <h1>業務ナビゲーター</h1>
+  <div class="header-sep"></div>
+
+  <div id="search-container">
+    <input type="text" id="search-input"
+      placeholder="業務名・概要で検索..."
+      autocomplete="off" spellcheck="false">
+    <button id="search-clear" class="btn" title="クリア" aria-label="検索をクリア">&#x2715;</button>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn btn-secondary" id="export-btn">データ管理</button>
+    <button class="btn btn-primary"   id="add-btn">
+      <span class="btn-icon">+</span> 新規追加
+    </button>
+  </div>
+</header>
+
+<!-- ========== MAIN ========== -->
+<main id="app-main">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div id="quick-access">
+      <div id="quick-access-title">最近の業務</div>
+      <div id="quick-access-items"></div>
+      <div id="quick-access-empty" style="display:none">
+        <span class="link-path" style="padding:4px 8px;display:block;font-size:12px;">まだ閲覧履歴がありません</span>
+      </div>
+    </div>
+    <div id="sidebar-categories"></div>
+  </nav>
+
+  <!-- DETAIL PANEL -->
+  <section id="detail-panel">
+
+    <div id="empty-state">
+      <span class="empty-icon">&#9776;</span>
+      <p>左側の一覧から業務を選択してください</p>
+    </div>
+
+    <div id="no-results" style="display:none">
+      <p>一致する業務が見つかりませんでした。検索ワードを変えてお試しください。</p>
+    </div>
+
+    <div id="search-results" style="display:none">
+      <div id="search-results-header"></div>
+      <div id="search-results-list"></div>
+    </div>
+
+    <div id="detail-card" style="display:none">
+
+      <div class="detail-header">
+        <div class="detail-header-left">
+          <div id="detail-category-badge" class="detail-category-badge"></div>
+          <div id="detail-name"  class="detail-name"></div>
+          <div id="detail-id"   class="detail-id"></div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-secondary btn-sm" id="detail-edit-btn">編集</button>
+          <button class="btn btn-danger    btn-sm" id="detail-delete-btn">削除</button>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">概要</div>
+        <p id="detail-description" class="detail-description"></p>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">手順</div>
+        <ul id="detail-steps" class="steps-list"></ul>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">関連ファイル / リンク</div>
+        <div id="detail-links" class="links-list"></div>
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ========== STATUS BAR ========== -->
+<footer id="status-bar">
+  <span id="status-count">読み込み中...</span>
+  <span>readme-is-all-you-need v1.1</span>
+</footer>
+
+<!-- ========== EDIT MODAL ========== -->
+<div id="modal-overlay">
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+    <div id="modal-header">
+      <span id="modal-title">業務を編集</span>
+      <button id="modal-close" title="閉じる">&#x2715;</button>
+    </div>
+
+    <div id="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="form-name">業務名 <span class="required">*</span></label>
+        <input type="text" id="form-name" class="form-input" placeholder="例: 月例報告書作成">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="form-category">業務頻度</label>
+        <select id="form-category" class="form-select">
+          <option value="毎日">毎日</option>
+          <option value="週次">週次</option>
+          <option value="月次">月次</option>
+          <option value="随時">随時</option>
+          <option value="期間限定">期間限定</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="form-description">概要</label>
+        <textarea id="form-description" class="form-textarea" rows="3"
+          placeholder="この業務の目的・内容を簡潔に記述してください"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="form-steps">手順</label>
+        <textarea id="form-steps" class="form-textarea" rows="6"
+          placeholder="1. 最初の手順&#10;2. 次の手順&#10;3. 最後の手順"></textarea>
+        <p class="form-hint">各行を「1. 」で始めると番号付きステップとして表示されます。</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">関連ファイル / リンク</label>
+        <div id="links-editor"></div>
+        <button type="button" class="btn btn-secondary btn-sm" id="add-link-btn" style="margin-top:8px">
+          + リンクを追加
+        </button>
+      </div>
+    </div>
+
+    <div id="modal-footer">
+      <button class="btn btn-secondary" id="modal-cancel-btn">キャンセル</button>
+      <button class="btn btn-primary"   id="modal-save-btn">保存</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== EXPORT / DATA MANAGEMENT MODAL ========== -->
+<div id="export-modal-overlay">
+  <div id="export-modal" role="dialog" aria-modal="true">
+
+    <div id="modal-header">
+      <span style="font-size:15px;font-weight:600;">データ管理</span>
+      <button id="export-modal-close" title="閉じる">&#x2715;</button>
+    </div>
+
+    <div style="padding:20px;overflow-y:auto;flex:1;">
+
+      <div style="background:var(--bg-active);border:1px solid var(--accent-light);border-radius:4px;padding:12px 16px;margin-bottom:20px;font-size:13px;line-height:1.7;color:var(--text-secondary);">
+        <strong style="color:var(--accent);">LocalStorage 自動保存について</strong><br>
+        編集・追加・削除の内容は <strong>このPC・このブラウザの LocalStorage に自動保存</strong> されます。
+        次回以降も同じブラウザで開けばデータは保持されます。<br>
+        別のPCへ移行する場合や、data.js を最新状態に更新したい場合は下記の操作を行ってください。
+      </div>
+
+      <div class="detail-section-title" style="margin-bottom:10px;">
+        現在のデータ (<span id="export-total-count">0</span> 件) を data.js 形式でエクスポート
+      </div>
+
+      <textarea id="export-textarea" class="form-textarea"
+        style="font-family:var(--font-mono);font-size:11px;min-height:220px;background:var(--bg-primary);"
+        readonly spellcheck="false"></textarea>
+
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary"    id="export-copy-btn">全文コピー</button>
+        <button class="btn btn-secondary"  id="export-download-btn">data.js としてダウンロード</button>
+      </div>
+      <p class="form-hint" style="margin-top:8px;">
+        コピー後、テキストエディタで <code style="font-family:var(--font-mono);background:var(--bg-primary);padding:1px 4px;border:1px solid var(--border);border-radius:2px;">admin/data/data.js</code> を開いて全文を貼り付けて上書き保存してください。
+      </p>
+
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">
+        <div class="detail-section-title" style="margin-bottom:10px;">危険な操作</div>
+        <button class="btn btn-danger" id="export-reset-btn">LocalStorage をリセットして data.js の初期状態に戻す</button>
+        <p class="form-hint" style="margin-top:6px;color:var(--danger);">この操作はブラウザの保存データを全て削除し、data.js の元の内容に戻します。</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="admin/data/data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
